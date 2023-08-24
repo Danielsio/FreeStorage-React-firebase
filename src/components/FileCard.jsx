@@ -2,11 +2,16 @@ import {Card, CardContent, Typography, Button} from "@mui/material";
 import {storage} from "../config/firebase.js";
 import {ref, deleteObject} from "firebase/storage";
 import {toast} from "react-toastify";
-import {auth} from "../config/firebase.js"
+import {auth} from "../config/firebase.js";
+import {ClipLoader} from "react-spinners";
+import {useState} from "react"; // Import ClipLoader
 
 // eslint-disable-next-line react/prop-types
 function FileCard({file, index, refreshFiles}) {
+    const [deleting, setDeleting] = useState(false);
+
     const handleDelete = () => {
+        setDeleting(true);
 
         const user = auth.currentUser;
         if (!user) {
@@ -14,19 +19,21 @@ function FileCard({file, index, refreshFiles}) {
         }
 
         // eslint-disable-next-line react/prop-types
-        const userStorageRef = ref(storage, `users/${user.uid}/${file.name}`); // Assuming you have 'path' information in your file object
+        const userStorageRef = ref(storage, `users/${user.uid}/${file.name}`);
 
         deleteObject(userStorageRef)
             .then(() => {
                 toast.success("File Deleted Successfully.");
-                refreshFiles(); // Refresh the files after deletion
+                refreshFiles();
             })
             .catch((error) => {
                 console.error("Error deleting file:", error);
                 toast.error("Error deleting file: " + error.message);
+            })
+            .finally(() => {
+                setDeleting(false);
             });
     };
-
 
     return (
         <Card key={index} style={{margin: "10px 0", backgroundColor: "#f5f5f5"}}>
@@ -43,7 +50,11 @@ function FileCard({file, index, refreshFiles}) {
                         View File
                     </Button>
                     <Button variant="outlined" color="secondary" onClick={handleDelete}>
-                        Delete File
+                        {deleting ? (
+                            <ClipLoader color="#fff" loading={true} size={20}/>
+                        ) : (
+                            "Delete File"
+                        )}
                     </Button>
                 </div>
             </CardContent>
