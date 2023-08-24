@@ -77,6 +77,7 @@ function StoragePage() {
             .then(() => {
                 toast.success("File Uploaded Successfully.");
                 setSelectedFile(null);
+                window.location.reload()
             })
             .catch((error) => {
                 toast.error("Error uploading file: " + error.message);
