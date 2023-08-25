@@ -1,10 +1,9 @@
 import {useEffect, useState} from "react";
-import {Button, Container, Paper, Typography} from "@mui/material";
+import {Button, Container, Paper, Typography, LinearProgress} from "@mui/material";
 import {storage} from "../config/firebase.js";
-import {ref, uploadBytes, getDownloadURL, listAll} from "firebase/storage";
+import {ref, uploadBytesResumable, getDownloadURL, listAll} from "firebase/storage";
 import {toast} from "react-toastify";
 import {auth} from "../config/firebase.js";
-import {ClipLoader} from "react-spinners";
 import FileCard from "../components/FileCard.jsx";
 
 function Storage() {
@@ -13,6 +12,8 @@ function Storage() {
     const [pictureFiles, setPictureFiles] = useState([]);
     const [otherFiles, setOtherFiles] = useState([]);
     const [uploading, setUploading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0); // New state for upload progress
+
 
     useEffect(() => {
         const fetchFiles = async () => {
@@ -72,7 +73,7 @@ function Storage() {
                 });
         };
 
-        fetchFiles();
+        fetchFiles().then(() => console.log("fetched files successfully"));
     }, []);
 
 
@@ -85,7 +86,8 @@ function Storage() {
             return;
         }
 
-        setUploading(true); // Set uploading to true
+        setUploading(true);
+        setUploadProgress(0);
 
         const user = auth.currentUser;
         if (!user) {
@@ -93,19 +95,23 @@ function Storage() {
         }
 
         const userStorageRef = ref(storage, `users/${user.uid}/${selectedFile.name}`);
+        const uploadTask = uploadBytesResumable(userStorageRef, selectedFile);
 
-        uploadBytes(userStorageRef, selectedFile)
-            .then(() => {
+        // Monitor the upload task for progress
+        uploadTask.on("state_changed",
+            (snapshot) => {
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                setUploadProgress(progress);
+            },
+            (error) => {
+                toast.error("Error uploading file: " + error.message);
+            },
+            () => {
                 toast.success("File Uploaded Successfully.");
                 setSelectedFile(null);
-                window.location.reload()
-            })
-            .catch((error) => {
-                toast.error("Error uploading file: " + error.message);
-            })
-            .finally(() => {
-                setUploading(false); // Reset uploading after upload is done
-            });
+                window.location.reload();
+            }
+        );
     };
 
     return (
@@ -123,7 +129,7 @@ function Storage() {
                 </Button>
                 {uploading && (
                     <div style={{marginTop: "10px"}}>
-                        <ClipLoader color="#3f51b5" loading={true} size={20}/>
+                        <LinearProgress variant="determinate" value={uploadProgress}/>
                     </div>
                 )}
             </Paper>

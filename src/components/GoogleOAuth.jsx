@@ -12,13 +12,15 @@ function GoogleOAuth() {
 
     const onGoogleClick = async () => {
         try {
-            // get the result from the sign-in action
-            const result = await signInWithPopup(getAuth(), new GoogleAuthProvider())
+            const googleAuthProvider = new GoogleAuthProvider();
+            googleAuthProvider.addScope("https://www.googleapis.com/auth/userinfo.profile");
+            googleAuthProvider.addScope("https://www.googleapis.com/auth/userinfo.email");
 
-            // get hold of the user
+            const result = await signInWithPopup(getAuth(), googleAuthProvider)
+
             const user = result.user
+            console.log(user)
 
-            // create reference to the document on firestore
             const docRef = doc(db, "users", user.uid)
 
             // read the document from the db
@@ -29,6 +31,7 @@ function GoogleOAuth() {
                 await setDoc(doc(db, "users", user.uid), {
                     name: user.displayName,
                     email: user.email,
+                    picture: user.photoURL,
                     timestamp: serverTimestamp(),
                 })
             }
