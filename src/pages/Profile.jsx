@@ -1,7 +1,7 @@
 import {auth} from "../config/firebase.js";
 import {Container, Paper, Typography} from "@mui/material";
 
-function ProfilePage() {
+function Profile() {
     const currentUser = auth.currentUser;
 
     return (
@@ -24,4 +24,4 @@ function ProfilePage() {
     );
 }
 
-export default ProfilePage;
+export default Profile;

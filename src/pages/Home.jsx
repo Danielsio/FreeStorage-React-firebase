@@ -2,7 +2,7 @@ import {Container} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/home.css'
 
-const HomePage = () => {
+const Home = () => {
     return (
         <div className="home-page">
             <Container className="content-container">
@@ -15,4 +15,4 @@ const HomePage = () => {
     );
 };
 
-export default HomePage;
+export default Home;

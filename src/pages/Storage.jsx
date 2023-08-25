@@ -7,14 +7,12 @@ import {auth} from "../config/firebase.js";
 import {ClipLoader} from "react-spinners";
 import FileCard from "../components/FileCard.jsx";
 
-function StoragePage() {
+function Storage() {
     const [selectedFile, setSelectedFile] = useState(null);
-    const [files, setFiles] = useState([]);
-    const [uploading, setUploading] = useState(false); // Add uploading state
-
-    useEffect(() => {
-        console.log(files)
-    }, [files]);
+    const [videoFiles, setVideoFiles] = useState([]);
+    const [pictureFiles, setPictureFiles] = useState([]);
+    const [otherFiles, setOtherFiles] = useState([]);
+    const [uploading, setUploading] = useState(false);
 
     useEffect(() => {
         const fetchFiles = async () => {
@@ -38,8 +36,31 @@ function StoragePage() {
 
                     Promise.all(filePromises)
                         .then((fileInfoList) => {
-                            console.log(fileInfoList)
-                            setFiles(fileInfoList.filter((fileInfo) => fileInfo !== null));
+                            console.log(fileInfoList);
+
+                            const categorizedFiles = {
+                                videoFiles: [],
+                                pictureFiles: [],
+                                otherFiles: []
+                            };
+
+                            fileInfoList.forEach((fileInfo) => {
+                                if (!fileInfo) return;
+
+                                const fileExtension = fileInfo.name.split('.').pop().toLowerCase();
+
+                                if (['mp4', 'mov', 'avi'].includes(fileExtension)) {
+                                    categorizedFiles.videoFiles.push(fileInfo);
+                                } else if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
+                                    categorizedFiles.pictureFiles.push(fileInfo);
+                                } else {
+                                    categorizedFiles.otherFiles.push(fileInfo);
+                                }
+                            });
+
+                            setVideoFiles(categorizedFiles.videoFiles);
+                            setPictureFiles(categorizedFiles.pictureFiles);
+                            setOtherFiles(categorizedFiles.otherFiles);
                         })
                         .catch((error) => {
                             console.error("Error fetching files:", error);
@@ -51,9 +72,9 @@ function StoragePage() {
                 });
         };
 
-
         fetchFiles();
     }, []);
+
 
     const handleFileChange = (e) => {
         setSelectedFile(e.target.files[0]);
@@ -108,17 +129,39 @@ function StoragePage() {
             </Paper>
             {/* Uploaded Files */}
             <Paper elevation={3} style={{padding: "20px", marginTop: "20px"}}>
-                <Typography variant="h5">Uploaded Files</Typography>
-                {files.map((file, index) =>
+                <Typography variant="h5">Your Videos</Typography>
+                {videoFiles.map((file, index) => (
                     <FileCard
                         key={file.url}
                         file={file}
                         index={index}
+                        type="video"
                         refreshFiles={() => window.location.reload()}
-                    />)}
+                    />
+                ))}
+                <Typography variant="h5" style={{marginTop: "20px"}}>Your Images & Photos</Typography>
+                {pictureFiles.map((file, index) => (
+                    <FileCard
+                        key={file.url}
+                        file={file}
+                        index={index}
+                        type="picture"
+                        refreshFiles={() => window.location.reload()}
+                    />
+                ))}
+                <Typography variant="h5" style={{marginTop: "20px"}}>Your Other Files</Typography>
+                {otherFiles.map((file, index) => (
+                    <FileCard
+                        key={file.url}
+                        file={file}
+                        index={index}
+                        type="other"
+                        refreshFiles={() => window.location.reload()}
+                    />
+                ))}
             </Paper>
         </Container>
     );
 }
 
-export default StoragePage;
+export default Storage;

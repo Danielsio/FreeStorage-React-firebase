@@ -25,7 +25,7 @@ function BootstrapNavbar() {
                     >
                         <Offcanvas.Header closeButton>
                             <Offcanvas.Title id={`offcanvasNavbarLabel-expand-${expand}`}>
-                                Offcanvas
+                                DanielSio
                             </Offcanvas.Title>
                         </Offcanvas.Header>
                         <Offcanvas.Body>

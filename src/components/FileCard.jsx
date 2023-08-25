@@ -7,8 +7,13 @@ import {ClipLoader} from "react-spinners";
 import {useState} from "react"; // Import ClipLoader
 
 // eslint-disable-next-line react/prop-types
-function FileCard({file, index, refreshFiles}) {
+function FileCard({file, index, refreshFiles, type}) {
     const [deleting, setDeleting] = useState(false);
+
+    const buttonText =
+        type === "video" ? "Watch Now" :
+            type === "picture" ? "Open Image" :
+                "View File";
 
     const handleDelete = () => {
         setDeleting(true);
@@ -47,7 +52,7 @@ function FileCard({file, index, refreshFiles}) {
                     {/* eslint-disable-next-line react/prop-types */}
                     <Button variant="outlined" color="primary" href={file.url} target="_blank"
                             rel="noopener noreferrer">
-                        View File
+                        {buttonText}
                     </Button>
                     <Button variant="outlined" color="secondary" onClick={handleDelete}>
                         {deleting ? (

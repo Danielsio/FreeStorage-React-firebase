@@ -6,7 +6,7 @@ import GoogleOAuth from "../components/GoogleOAuth.jsx";
 import {Button, Checkbox, Container, FormControlLabel, TextField} from "@mui/material";
 import {auth} from "../config/firebase.js";
 
-function LoginPage() {
+function Login() {
     const [showPassword, setShowPassword] = React.useState(false);
     const [formData, setFormData] = React.useState({
         email: "",
@@ -107,4 +107,4 @@ function LoginPage() {
     );
 }
 
-export default LoginPage;
+export default Login;
